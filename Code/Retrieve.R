@@ -18,17 +18,16 @@ rm("NewData")
 feature_ids <- unique(df_gauge_featureids$featureid)
 
 # load flow data
-df_flow <- load("Data/Flows.RData")
+df_flow <- readRDS("Data/Flows.RData")
 
 # merge to associate featureid with flow data
 df_flow <- df_flow %>%
   left_join(df_gauge_featureids) 
 
+df_flow<-dplyr::select(df_flow,site_no,featureid,date, DAkm2, dec_lat,dec_long,mean)
+
 
 #------------------------Pull covariate data from database--------------
-
-# load profile locally to play with packrat
-source("~/.Rprofile")
 
 # set connection to database
 db <- src_postgres(dbname='sheds', host='felek.cns.umass.edu', port='5432', user=options('SHEDS_USERNAME'), password=options('SHEDS_PASSWORD'))
