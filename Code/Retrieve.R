@@ -8,16 +8,22 @@ library(RPostgreSQL)
 library(ggplot2)
 
 #----------------------- load data not in database--------------------
-df_gauge_featureids <- read.csv("Data/site_id.csv", header = T)
+load("Data/sites_id.RData")
 
-df_flow <- load("Data/Sites.RData")
-
-# merge 
-df_flow <- df_flow %>%
-  left_join(df_gauge_featureids) 
+df_gauge_featureids <- NewData %>%
+  dplyr::rename(featureid = FEATUREID)
+rm("NewData")
 
 # get unique featureid with obvserved trout data for db queries
 feature_ids <- unique(df_gauge_featureids$featureid)
+
+# load flow data
+df_flow <- load("Data/Flows.RData")
+
+# merge to associate featureid with flow data
+df_flow <- df_flow %>%
+  left_join(df_gauge_featureids) 
+
 
 #------------------------Pull covariate data from database--------------
 
@@ -25,7 +31,7 @@ feature_ids <- unique(df_gauge_featureids$featureid)
 source("~/.Rprofile")
 
 # set connection to database
-db <- src_postgres(dbname='sheds', host='ecosheds.org', port='5432', user=options('SHEDS_USERNAME'), password=options('SHEDS_PASSWORD'))
+db <- src_postgres(dbname='sheds', host='felek.cns.umass.edu', port='5432', user=options('SHEDS_USERNAME'), password=options('SHEDS_PASSWORD'))
 
 # table connection
 tbl_covariates <- tbl(db, 'covariates') %>%
